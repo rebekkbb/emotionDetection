@@ -38,13 +38,13 @@ def preprosess(clipnum):
     f = open('data/data'+clipnum+'/preprocessedData.txt','a')
     f.write("time,hr,rr,ecg,gsr\n")
 
-    ggsr= interp1d(xgsr, ygsr, kind='previous', bounds_error=False)
-    ghr= interp1d(xhr, yhr, kind='previous', bounds_error=False)
-    grr= interp1d(xhr, yrr_nonan, kind='previous', bounds_error=False)
+    ggsr= interp1d(xgsr, ygsr, kind='previous')
+    ghr= interp1d(xhr, yhr, kind='previous')
+    grr= interp1d(xhr, yrr_nonan, kind='previous')
 
     preprosGSR=savgol_filter(ggsr(xecg),101,2)
     alldata=np.column_stack((xecg,ghr(xecg),grr(xecg),yecg,preprosGSR))
     np.savetxt(f,alldata,delimiter=',')
-preprosess("2")
+preprosess("3")
 
 
