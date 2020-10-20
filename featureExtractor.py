@@ -1,45 +1,97 @@
 import statistics
 import numpy as np
 from scipy.stats import linregress
+import pandas as pd
+import math
 
-def GSRfeatures(clipNum):
-    datafile=np.loadtxt("data/data"+clipNum+"/GSR_denoised.txt",delimiter=',',skiprows=1)
-    x=datafile[:,0]
-    y=datafile[:,1]
+def GSRfeatures(clipnum,participant):
+    datafile=pd.read_csv('data/'+participant+'/data'+clipnum+'/preprocessedData.csv',index_col=0)
+    k=datafile.index[0]
 
-    mean5sec= []
-    std5sec= []
-    slopes5sec= []
-    intercept5sec= []
-    r_value5sec= []
-    p_value5sec= []
-    maxval = max(y)
-    minval = min(y)
+    mean5sec = []
+    std5sec = []
+    slopes5sec = []
+    intercept5sec = []
+    max5sec = []
+    min5sec = []
 
-    i_start=0
-    i_end=0
+    while(k<=datafile.index[-1]):
+        gsr5sec=datafile.loc[k:k+5]["gsr"].tolist()
+        x5sec=datafile.loc[k:k+5].index.tolist()
+        mean5sec.append(statistics.mean(gsr5sec))
+        std5sec.append(statistics.stdev(gsr5sec))
+        max5sec.append(max(gsr5sec))
+        min5sec.append(min(gsr5sec))
 
-    k=0
-    j=0
-    while k<=len(x)-5:
-        if int(x[k])==int(x[i_start])+1:
-            while j<len(x) and x[j]<x[k]+6:
-                j+=1
-            i_end = j
-            i_start = k
+        slope, intercept, r_value, p_value, std_err = linregress(x5sec,gsr5sec)
 
-            mean5sec.append(statistics.mean(y[i_start:i_end]))
-            std5sec.append(statistics.stdev(y[i_start:i_end]))
+        slopes5sec.append(slope)
 
-            slope, intercept, r_value, p_value, std_err = linregress(x[i_start:i_end],y[i_start:i_end])
-            slopes5sec.append(slope)
+        k=k+1
 
-            j=i_start
+    return mean5sec,std5sec,slopes5sec,max5sec,min5sec
+
+def HRVfeatures(clipnum,participant):
+    meanNN5sec = []
+    medianNN5sec = []
+    stdNN5sec = []
+    NNnumjump5sec = []
+    rootjumps = []
+    meanHR5sec = []
+    stdHR5sec = []
+
+    datafile=pd.read_csv('data/'+participant+'/data'+clipnum+'/preprocessedData.csv',index_col=0)
+    k=datafile.index[0]
+
+    while(k<=datafile.index[-1]):
+        rr5sec=datafile.loc[k:k+5]["rr"].tolist()
+        hr5sec=datafile.loc[k:k+5]["hr"].tolist()
+
+        meanNN5sec.append(statistics.mean(rr5sec))
+        medianNN5sec.append(statistics.median(rr5sec))
+        stdNN5sec.append(statistics.stdev(rr5sec))
+
+        meanHR5sec.append(statistics.mean(hr5sec))
+        stdHR5sec.append(statistics.stdev(hr5sec))
+
+        jumps=[x - rr5sec[i - 1] for i, x in enumerate(rr5sec)][1:]
+        negjumps=[abs(x) for x in jumps if x < 0 ]
+        suma=sum(negjumps)
+        rootjumps.append(math.sqrt(suma))
+        bigjumps=[x for x in jumps if x <= -50 ]
+        NNnumjump5sec.append(len(bigjumps))
+
         k+=1
-    print(slopes5sec)
-    print(statistics.stdev(y))
+    
+    return meanNN5sec, medianNN5sec, stdNN5sec, NNnumjump5sec, rootjumps, meanHR5sec, stdHR5sec
 
-GSRfeatures('1')
+
+def Tempfeatures(clipnum,participant):
+    meanTemp5sec=[]
+    stdTemp5sec=[]
+
+    datafile=pd.read_csv('data/'+participant+'/data'+clipnum+'/preprocessedData.csv',index_col=0)
+    k=datafile.index[0]
+
+    while(k<=datafile.index[-1]):
+        temp5sec=datafile.loc[k:k+5]["temperature"].tolist()
+        meanTemp5sec.append(statistics.mean(temp5sec))
+        stdTemp5sec.append(statistics.stdev(temp5sec))
+
+        k+=1
+    return meanTemp5sec, stdTemp5sec
+
+
+   
+for i in range(2,22):
+    meanTemp,stdTemp=Tempfeatures(str(i),'r')
+    meanNN, medianNN, stdNN, NNnumjump, rootjumps, meanHR, stdHR=HRVfeatures(str(i),'r')
+    meanGSR,stdGSR,slopesGSR,maxGSR,minGSR=GSRfeatures(str(i),'r')
+
+    df=pd.DataFrame({'meanTemp': meanTemp,'stdTemp': stdTemp, 'meanNN':meanNN, 'stdNN': stdNN, 'NNnumjump': NNnumjump, 'rootjumps': rootjumps, 'meanHR':meanHR, 'stdHR':stdHR})
+    df.to_csv('data/features/features_clip'+str(i)+'.csv')
+
+
 
   
 
