@@ -1,13 +1,16 @@
 import numpy as np
 import pandas as pd
-import preprocessing
+import featureExtractor
+
 
 
 def calculateLabels(clipnum,participant):
-	lengths=preprocessing.cliplengths
+	lengths=featureExtractor.lengths
 	newvalence=[]
 	newarousal=[]
 	Q=[]
+	scared=[]
+	jumpscare=[]
 
 	arousal = np.loadtxt("data/labels/"+clipnum+"_temperal.txt", delimiter='\t')[0]
 	valence = np.loadtxt("data/labels/"+clipnum+"_temperal.txt", delimiter='\t')[1]
@@ -25,21 +28,34 @@ def calculateLabels(clipnum,participant):
 	for j in range(len(newvalence)):
 		if (newvalence[j]>0 and newarousal[j]>0):
 			Q.append(1)
+			scared.append(0)
+			jumpscare.append(0)
 		elif (newvalence[j]>0 and newarousal[j]<0):
 			Q.append(2)
+			scared.append(0)
+			jumpscare.append(0)
 		elif (newvalence[j]<0 and newarousal[j]<0):
 			Q.append(3)
+			scared.append(0)
+			jumpscare.append(0)
 		elif (newvalence[j]<0 and newarousal[j]>0):
 			Q.append(4)
+			scared.append(1)
+			if newarousal[j]>3.5:
+				jumpscare.append(1)
+			else:
+				jumpscare.append(0)
 		else:
 			Q.append(0)
+			scared.append(0)
+			jumpscare.append(0)
 
 
 
 
 
 
-	df = pd.DataFrame({'arousal': newarousal[:lengths[str(clipnum)]],'valence': newvalence[:lengths[str(clipnum)]],'Q':Q[:lengths[str(clipnum)]]})
+	df = pd.DataFrame({'arousal': newarousal[:lengths[str(clipnum)]],'valence': newvalence[:lengths[str(clipnum)]],'Q':Q[:lengths[str(clipnum)]],'scared':scared[:lengths[str(clipnum)]],'jumpscare':jumpscare[:lengths[str(clipnum)]]})
 	df.to_csv('data/labels/label_clip'+clipnum+'.csv')
 
 

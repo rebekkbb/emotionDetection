@@ -9,7 +9,7 @@ import os
 
 
 
-cliplengths={'2':85,'3':195,'4':133,'5':247,'6':233,'7':259,'8':187,'9':270,'10':259,'11':104,'12':28,'13':281,'14':111,'15':269,'16':272,'17':252,'18':156,'19':199,'20':187,'21':155}
+cliplengths={'2':85,'3':195,'4':133,'5':245,'6':233,'7':259,'8':187,'9':271,'10':159,'11':104,'12':28,'13':281,'14':111,'15':269,'16':272,'17':252,'18':156,'19':199,'20':187,'21':150}
 
 def interpolateNaN(y):
     ok = ~np.isnan(y)
@@ -46,11 +46,13 @@ def preprosess(clipnum,participant):
     df=pd.DataFrame(data=alldata,index=xecg,columns=['hr','rr','ecg','gsr','temperature'])
 
     if (xecg[-1]-xecg[0])>cliplengths[clipnum]:
-        cutteddf=df.loc[xecg[0]:xecg[0]+cliplengths[clipnum]]
+        cutteddf=df.loc[xecg[0]:xecg[0]+cliplengths[str(clipnum)]]
         cutteddf.to_csv("data/"+participant+"/data"+clipnum+'/preprocessedData.csv')
     else:
         df.to_csv("data/"+participant+"/data"+clipnum+'/preprocessedData.csv')
+        print(clipnum)
 
-preprosess('21','r')
+for i in range(2,22):
+    preprosess(str(i),'r')
 
 

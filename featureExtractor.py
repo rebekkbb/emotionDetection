@@ -4,6 +4,8 @@ from scipy.stats import linregress
 import pandas as pd
 import math
 
+lengths={}
+
 def GSRfeatures(clipnum,participant):
     datafile=pd.read_csv('data/'+participant+'/data'+clipnum+'/preprocessedData.csv',index_col=0)
     k=datafile.index[0]
@@ -89,7 +91,8 @@ for i in range(2,22):
     meanGSR,stdGSR,slopesGSR,maxGSR,minGSR=GSRfeatures(str(i),'r')
 
     df=pd.DataFrame({'meanTemp': meanTemp,'stdTemp': stdTemp, 'meanNN':meanNN, 'stdNN': stdNN, 'NNnumjump': NNnumjump, 'rootjumps': rootjumps, 'meanHR':meanHR, 'stdHR':stdHR})
-    df.to_csv('data/features/features_clip'+str(i)+'.csv')
+    lengths[str(i)]=len(df)
+    df.to_csv('data/r/features/features_clip'+str(i)+'.csv')
 
 
 
