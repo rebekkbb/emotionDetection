@@ -3,8 +3,10 @@ import numpy as np
 from scipy.stats import linregress
 import pandas as pd
 import math
+import preprocessing
 
 lengths={}
+clipnums=[2,4,17,18,19]
 
 def GSRfeatures(clipnum,participant):
     datafile=pd.read_csv('data/'+participant+'/data'+clipnum+'/preprocessedData.csv',index_col=0)
@@ -85,14 +87,14 @@ def Tempfeatures(clipnum,participant):
 
 
    
-for i in range(2,22):
-    meanTemp,stdTemp=Tempfeatures(str(i),'r')
-    meanNN, medianNN, stdNN, NNnumjump, rootjumps, meanHR, stdHR=HRVfeatures(str(i),'r')
-    meanGSR,stdGSR,slopesGSR,maxGSR,minGSR=GSRfeatures(str(i),'r')
+for i in clipnums:
+    meanTemp,stdTemp=Tempfeatures(str(i),'k')
+    meanNN, medianNN, stdNN, NNnumjump, rootjumps, meanHR, stdHR=HRVfeatures(str(i),'k')
+    meanGSR,stdGSR,slopesGSR,maxGSR,minGSR=GSRfeatures(str(i),'k')
 
     df=pd.DataFrame({'meanTemp': meanTemp,'stdTemp': stdTemp, 'meanNN':meanNN, 'stdNN': stdNN, 'NNnumjump': NNnumjump, 'rootjumps': rootjumps, 'meanHR':meanHR, 'stdHR':stdHR})
     lengths[str(i)]=len(df)
-    df.to_csv('data/r/features/features_clip'+str(i)+'.csv')
+    df.to_csv('data/k/features/features_clip'+str(i)+'.csv')
 
 
 

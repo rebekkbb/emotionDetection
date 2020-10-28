@@ -10,6 +10,7 @@ import os
 
 
 cliplengths={'2':85,'3':195,'4':133,'5':245,'6':233,'7':259,'8':187,'9':271,'10':159,'11':104,'12':28,'13':281,'14':111,'15':269,'16':272,'17':252,'18':156,'19':199,'20':187,'21':150}
+clipnums=[2,4,17,18,19]
 
 def interpolateNaN(y):
     ok = ~np.isnan(y)
@@ -52,7 +53,7 @@ def preprosess(clipnum,participant):
         df.to_csv("data/"+participant+"/data"+clipnum+'/preprocessedData.csv')
         print(clipnum)
 
-for i in range(2,22):
-    preprosess(str(i),'r')
+for i in clipnums:
+    preprosess(str(i),'k')
 
 
