@@ -1,0 +1,1 @@
+Arousal before,Valence before, Arousal after, Valence after, seen before: 6.5789475,6.7619047, 2.15311,7.547619,false
