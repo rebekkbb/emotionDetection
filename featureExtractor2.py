@@ -91,7 +91,6 @@ def RR_bands(freqs,psd):
             break
         iHF+=1
 
-    print([iVLF,iLF,iHF])
     return [freqs[:iVLF],psd[:iVLF]], [freqs[iVLF:iLF],psd[iVLF:iLF]], [freqs[iLF:iHF],psd[iLF:iHF]]
 
 
@@ -119,9 +118,8 @@ def RR_freq(clipid):
     LFHF = aLF/aHF
 
 
-    return maxVLF, maxLF, maxHF, aVLF, aLF, aHF, aTOT, pVLF, pLF, pHF, nLF, nHF, LFHF
+    return freqs, psd, maxVLF, maxLF, maxHF, aVLF, aLF, aHF, aTOT, pVLF, pLF, pHF, nLF, nHF, LFHF
 
-print(RR_freq("f"))
 
 
 """plt.plot(RR_freq("s")[0],RR_freq("s")[1],label="Sadness")

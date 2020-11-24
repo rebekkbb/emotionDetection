@@ -1,56 +1,65 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-"""files=[1,4,6,7,11,12,13,14,18,19,20]
-x=np.arange(0,33,1)
-
-matr=[]
-for i in files:
-    ynew=[]
-    datafile=np.loadtxt("data/data"+str(i)+"99/values.txt",delimiter=',',skiprows=1)
-    y=datafile[:,1][:33]
-    y2=datafile[:,2][:33]
-    for i in y:
-        ynew.append(((1024+2*i)*10000)/(512-i))
-    matr.append(y)
-meanlist=np.mean(matr,axis=0)
-
-datafunny=np.loadtxt("data/data2/values (9).txt",delimiter=',',skiprows=1)
-plt.plot(x,meanlist)
-plt.plot(x,datafunny[:,1][57:])
-
-
-plt.title("GSR")
-plt.xlabel("time stamp(sec from 1997)")
-plt.ylabel("GSR")
+import featureExtractor2
 
 
 
-plt.show()"""
 
+#emotions plots
+t = pd.read_csv("data_real/datat/ard_preprocessed.csv")
+f = pd.read_csv("data_real/dataf/ard_preprocessed.csv")
+h = pd.read_csv("data_real/datah/ard_preprocessed.csv")
+s = pd.read_csv("data_real/datas/ard_preprocessed.csv")
 
+b1 = pd.read_csv("data_real/datat/ard_preprocessed.csv")
+b2 = pd.read_csv("data_real/dataf/ard_preprocessed.csv")
+b3 = pd.read_csv("data_real/datah/ard_preprocessed.csv")
+b4 = pd.read_csv("data_real/datah/ard_preprocessed.csv")
 
-#datafile=pd.read_csv("data_real/dataf/")
-data =pd.read_csv("data_real/datat/hrv_preprocessed.csv")
-basedata = pd.read_csv("data_real/datab4/hrv_preprocessed.csv",)
-baseecg = np.loadtxt("data_real/datab1/ECGvalues.txt",delimiter=',',skiprows=1)
-tecg = np.loadtxt("data_real/datah/ECGvalues.txt",delimiter=',',skiprows=1)
-
-#newarr=np.subtract(data[:,2],basedata[-len(data):,2])
-
-
-"""y=datafile[:,1][:-6000]
-y2=datafile[:,1][-6000:]
-y3=datafunny[:,1][-6000:]
-
-plt.psd(y,500,label='fear')
-plt.psd(y2,500,label='calm')
-plt.psd(y3,500,label='happy')
-plt.legend()
-plt.plot(np.arange(0,len(basedata[:,2]),1),basedata[:,2])
-plt.plot(np.arange(0,len(data[:,2]),1),data[:,2])"""
-
-plt.psd(data["rr"].to_numpy(),label='happy')
-plt.psd(basedata["rr"].to_numpy(),label='base')
+plt.plot(np.arange(len(t["gsr"])),t["gsr"],label="Tenderness")
+plt.plot(np.arange(len(f["gsr"])),f["gsr"],label="Fear")
+plt.plot(np.arange(len(s["gsr"])),s["gsr"],label="Sadness")
+plt.plot(np.arange(len(h["gsr"])),h["gsr"],label="Amusement")
 plt.legend()
 plt.show()
+
+#Baselines+ cogsresponding emotion
+
+plt.plot(np.arange(len(b1["gsr"])),b1["gsr"],label="Amusement-baseline")
+plt.plot(np.arange(len(h["gsr"])),h["gsr"],label="Amusement")
+plt.legend()
+plt.show()
+
+plt.plot(np.arange(len(b2["gsr"])),b2["gsr"],label="Sadness-baseline")
+plt.plot(np.arange(len(s["gsr"])),s["gsr"],label="sadness")
+plt.legend()
+plt.show()
+
+plt.plot(np.arange(len(b3["gsr"])),b3["gsr"],label="Fear-baseline")
+plt.plot(np.arange(len(f["gsr"])),f["gsr"],label="Fear")
+plt.legend()
+plt.show()
+
+plt.plot(np.arange(len(b4["gsr"])),b4["gsr"],label="Tenderness-baseline")
+plt.plot(np.arange(len(t["gsr"])),t["gsr"],label="Tenderness")
+plt.legend()
+plt.show()
+
+
+
+#baselines plots
+
+
+#PSD plots
+
+"""plt.plot(featureExtractor2.gsr_freq("s")[0],featureExtractor2.gsr_freq("s")[1],label="Sadness")
+plt.plot(featureExtractor2.gsr_freq("h")[0],featureExtractor2.gsr_freq("h")[1],label="Amusement")
+plt.plot(featureExtractor2.gsr_freq("t")[0],featureExtractor2.gsr_freq("t")[1],label="Tenderness")
+plt.plot(featureExtractor2.gsr_freq("f")[0],featureExtractor2.gsr_freq("f")[1],label="Fear")
+plt.legend()
+plt.show()
+
+plt.plot(x,y)
+plt.legend()
+plt.show()"""
