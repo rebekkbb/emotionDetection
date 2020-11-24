@@ -35,7 +35,8 @@ def GSRfeatures(clipnum,participant):
 
     return mean5sec,std5sec,slopes5sec,max5sec,min5sec
 
-def HRVfeatures(clipnum,participant):
+def TimeHRVfeatures(clipnum,participant):
+    #https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8219396
     meanNN5sec = []
     medianNN5sec = []
     stdNN5sec = []
@@ -43,6 +44,11 @@ def HRVfeatures(clipnum,participant):
     rootjumps = []
     meanHR5sec = []
     stdHR5sec = []
+    #root mean square of differences between adjacent RR intervals(RMSSD)
+    #number of successive RR intervals that differ more than 50 ms (NN50)
+    # percentage of successive RR intervals that differ more than 50ms (pNN50)
+    #and standard deviation of differences betweenadjacent RR intervals (SDSD)
+
 
     datafile=pd.read_csv('data/'+participant+'/data'+clipnum+'/preprocessedData.csv',index_col=0)
     k=datafile.index[0]
@@ -68,6 +74,9 @@ def HRVfeatures(clipnum,participant):
         k+=1
     
     return meanNN5sec, medianNN5sec, stdNN5sec, NNnumjump5sec, rootjumps, meanHR5sec, stdHR5sec
+
+def FrequencyFeatures(clipnum,participant):
+    datafile=pd.read_csv('data/'+participant+'/data'+clipnum+'/preprocessedData.csv',index_col=0)
 
 
 def Tempfeatures(clipnum,participant):

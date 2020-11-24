@@ -8,10 +8,6 @@ import pandas as pd
 import os
 
 
-
-cliplengths={'2':85,'3':195,'4':133,'5':245,'6':233,'7':259,'8':187,'9':271,'10':159,'11':104,'12':28,'13':281,'14':111,'15':269,'16':272,'17':252,'18':156,'19':199,'20':187,'21':150}
-clipnums=[2,4,17,18,19]
-
 def interpolateNaN(y):
     ok = ~np.isnan(y)
     xp = ok.ravel().nonzero()[0]
@@ -20,40 +16,60 @@ def interpolateNaN(y):
     y[np.isnan(y)] = np.interp(x, xp, fp)
     return y
 
-def preprosess(clipnum,participant):
-    xgsr=np.loadtxt("data/"+participant+"/data"+clipnum+"/Arduinovalues.txt",delimiter=',',skiprows=1)[:,0]
-    ygsr=np.loadtxt("data/"+participant+"/data"+clipnum+"/Arduinovalues.txt",delimiter=',',skiprows=1)[:,1]
+def PortValToResistance(gsrvals):
+    f = lambda gsrvals : ((1024+2*gsrvals)*10000)/(512-gsrvals)
+    return f(gsrvals)
 
-    ytemp=np.loadtxt("data/"+participant+"/data"+clipnum+"/Arduinovalues.txt",delimiter=',',skiprows=1)[:,2]
 
-    xhr = np.loadtxt("data/"+participant+"/data"+clipnum+"/values.txt",delimiter=',',skiprows=1)[:,0]
-    yhr = np.loadtxt("data/"+participant+"/data"+clipnum+"/values.txt",delimiter=',',skiprows=1)[:,1]
+def preprosess(clipid):
 
-    yrr = np.loadtxt("data/"+participant+"/data"+clipnum+"/values.txt",delimiter=',',skiprows=1)[:,2]
+    xecg= np.loadtxt("data_real/data"+clipid+"/ECGvalues.txt",delimiter=',',skiprows=1)[:,0]
+    yecg= np.loadtxt("data_real/data"+clipid+"/ECGvalues.txt",delimiter=',',skiprows=1)[:,1]
 
-    xecg= np.loadtxt("data/"+participant+"/data"+clipnum+"/ECGvalues.txt",delimiter=',',skiprows=1)[:,0]
-    yecg= np.loadtxt("data/"+participant+"/data"+clipnum+"/ECGvalues.txt",delimiter=',',skiprows=1)[:,1]
+    start_time=xecg[0]
 
-    yrr_nonan=interpolateNaN(yrr)
+    df_ecg = pd.DataFrame(data=yecg,index=xecg,columns=["ecg"])
 
-    ggsr= interp1d(xgsr, ygsr, kind='previous',fill_value="extrapolate")
-    gtemp= interp1d(xgsr, ytemp, kind='previous',fill_value="extrapolate")
-    ghr= interp1d(xhr, yhr, kind='previous',fill_value="extrapolate")
-    grr= interp1d(xhr, yrr_nonan, kind='previous',fill_value="extrapolate")
 
-    preprosGSR=savgol_filter(ggsr(xecg),101,2)
-    alldata=np.column_stack((ghr(xecg),grr(xecg),yecg,preprosGSR,gtemp(xecg)))
+    xgsr=np.loadtxt("data_real/data"+clipid+"/Arduinovalues.txt",delimiter=',',skiprows=1)[:,0]
+    yGSRport=np.loadtxt("data_real/data"+clipid+"/Arduinovalues.txt",delimiter=',',skiprows=1)[:,1]
+    gsr_startindex=0
+    for i in xgsr:
+        if i>start_time:
+            break
+        gsr_startindex+=1
 
-    df=pd.DataFrame(data=alldata,index=xecg,columns=['hr','rr','ecg','gsr','temperature'])
+    ygsr=PortValToResistance(yGSRport[gsr_startindex:])
+    fygsr=savgol_filter(ygsr,101,2)
 
-    if (xecg[-1]-xecg[0])>cliplengths[clipnum]:
-        cutteddf=df.loc[xecg[0]:xecg[0]+cliplengths[str(clipnum)]]
-        cutteddf.to_csv("data/"+participant+"/data"+clipnum+'/preprocessedData.csv')
-    else:
-        df.to_csv("data/"+participant+"/data"+clipnum+'/preprocessedData.csv')
-        print(clipnum)
+    ytemp=np.loadtxt("data_real/data"+clipid+"/Arduinovalues.txt",delimiter=',',skiprows=1)[:,2][gsr_startindex:]
 
-for i in clipnums:
-    preprosess(str(i),'k')
+    arduinodata=np.column_stack((fygsr,ytemp))
+    df_ard=pd.DataFrame(data=arduinodata,index=xgsr[gsr_startindex:],columns=["gsr","temp"])
+
+
+    xhr = np.loadtxt("data_real/data"+clipid+"/values.txt",delimiter=',',skiprows=1)[:,0]
+    yhr = np.loadtxt("data_real/data"+clipid+"/values.txt",delimiter=',',skiprows=1)[:,1]
+    hrv_startindex=0
+
+    for j in xhr:
+        if j>start_time:
+            break
+        hrv_startindex+=1
+
+    yrr = np.loadtxt("data_real/data"+clipid+"/values.txt",delimiter=',',skiprows=1)[:,2]
+    yrr_nonan = interpolateNaN(yrr)
+
+    hrvdata = np.column_stack((yhr[hrv_startindex:],yrr_nonan[hrv_startindex:]))
+    df_hrv = pd.DataFrame(data=hrvdata,index=xhr[hrv_startindex:],columns=["hr","rr"])
+
+
+
+    df_ecg.to_csv("data_real/data"+clipid+'/ecg_preprocessed.csv')
+    df_ard.to_csv("data_real/data"+clipid+'/ard_preprocessed.csv')
+    df_hrv.to_csv("data_real/data"+clipid+'/hrv_preprocessed.csv')
+
+
+preprosess('b4')
 
 
