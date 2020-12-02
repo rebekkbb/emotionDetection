@@ -1,0 +1,2 @@
+valence1,arousal1,valence2,arousal2,seen before
+5.094937,4.9038463,4.984177,4.4481606,false
