@@ -3,34 +3,21 @@ import pandas as pd
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 
-featuresConcat = pd.DataFrame(columns=['meanTemp','stdTemp','meanNN','stdNN','NNnumjump','rootjumps','meanHR','stdHR'])
-labelsConcat = pd.DataFrame(columns=['jumpscare'])
-clipnums=[2,4,17,18]
+y=[]
+for i in range(8):
+    for j in range(4):
+        y.append(j)
 
-for i in clipnums:
-	datafile=pd.read_csv('data/k/features/features_clip'+str(i)+'.csv',index_col=0)
-	labels=pd.read_csv('data/labels/label_clip'+str(i)+'.csv',usecols=['jumpscare'])
-	featuresConcat=featuresConcat.append(datafile)
-	labelsConcat=labelsConcat.append(labels)
+df=pd.read_csv("featureMatrix.csv")
 
+X=df.values
 
-X=featuresConcat.values
-y=labelsConcat.values.flatten()
-print(X)
-print(y)
-y=y.astype('int')
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20)
-
-
-svclassifier = svm.SVC(kernel='rbf')
-svclassifier.fit(X_train, y_train)
-
-y_pred = svclassifier.predict(X_test)
-
-print(confusion_matrix(y_test, y_pred))
-print(classification_report(y_test, y_pred))
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.8, random_state =50)
 
 
 
+clf= svm.SVC(kernel='rbf', gamma=1, C=1, decision_function_shape='ovo').fit(X_train,y_train)
+y_pred = clf.predict(X_test) 
+print(clf.score(X_test,y_test))
+print(confusion_matrix(y_test,y_pred))
 
